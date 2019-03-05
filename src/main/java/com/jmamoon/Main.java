@@ -1,10 +1,10 @@
 package com.jmamoon;
 
+import com.jmamoon.socialloansystem.datasource.DataSource;
 import com.jmamoon.socialloansystem.loanrequestprocessor.LoanRequestProcessor;
 import com.jmamoon.socialloansystem.loanrequestprocessor.LoanRequestProcessorFactory;
-import com.jmamoon.socialloansystem.model.House;
 import com.jmamoon.socialloansystem.model.LoanRequest;
-import com.jmamoon.socialloansystem.model.Person;
+import java.util.List;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,23 +20,27 @@ public class Main {
     public static void main(String[] args) {
 
         LoanRequestProcessor loanRequestProcessor = LoanRequestProcessorFactory.create();
+        List<LoanRequest> requests = DataSource.getRequests();
 
-        Person person = new Person();
-        person.setName("Jose");
-        person.setAge(25);
-        person.setAffordablePaymentPerMonth(2000);
+        requests.forEach((loanRequest) -> {
 
-        House house = new House();
-        house.setLocation("Cochabamba");
-        house.setPrice(720000);
+            loanRequestProcessor.processRequest(loanRequest);
+        });
 
-        LoanRequest loanRequest = new LoanRequest();
-        loanRequest.setPerson(person);
-        loanRequest.setProperty(house);
+        requests.forEach((loanRequest) -> {
 
-        loanRequestProcessor.processRequest(loanRequest);
+            if (loanRequest.isAccepted()) {
+                System.out.println(loanRequest.getPerson() + " is able to get a loan for " + loanRequest.getProperty());
+            } else {
+                System.out.println(loanRequest.getPerson() + " has the following issues to get a loan for " + loanRequest.getProperty());
+                loanRequest.getIssues().forEach((issue) -> {
+                    System.out.println(issue);
+                });
+            }
 
-        System.out.println("Loan request: " + loanRequest.isAccepted());
+            System.out.println();
+        });
+
     }
 
 }
